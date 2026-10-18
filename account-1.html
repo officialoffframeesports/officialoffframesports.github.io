@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OFFFRAME ESPORTS — Player Account</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 20px 14px 40px; background: #070a12; color: #f5f7fb;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .wrap { max-width: 480px; margin: 18px auto; }
+    .card {
+      background: #111725; border: 1px solid #29364c; border-radius: 18px;
+      padding: 22px; box-shadow: 0 16px 45px #0005;
+    }
+    .brand { text-align: center; margin-bottom: 22px; }
+    .brand h1 { margin: 0; letter-spacing: 3px; font-size: 29px; }
+    .brand h1 span { color: #ff4657; }
+    .brand p { color: #9eabc0; font-size: 12px; letter-spacing: 2px; }
+    h2 { font-size: 20px; margin: 18px 0 12px; }
+    p { line-height: 1.5; }
+    .muted { color: #a9b5c9; font-size: 13px; }
+    .status { border-radius: 10px; padding: 11px; background: #0a101b; margin: 12px 0 18px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+    input, button { width: 100%; border-radius: 10px; padding: 13px; margin: 6px 0; font-size: 15px; }
+    input { color: #fff; background: #090e17; border: 1px solid #35435c; }
+    input:focus { outline: 2px solid #ff4657; border-color: transparent; }
+    button { border: 0; cursor: pointer; font-weight: 700; background: #ff4657; color: #fff; }
+    button:disabled { opacity: .55; cursor: wait; }
+    button.secondary { background: #26344b; }
+    button.google { background: #f4f6fa; color: #171a20; }
+    .tabs { display: flex; gap: 8px; }
+    .tabs button { flex: 1; background: #26344b; }
+    .tabs button.active { background: #ff4657; }
+    .divider { display: flex; align-items: center; gap: 10px; color: #8491a7; font-size: 12px; margin: 16px 0; }
+    .divider:before, .divider:after { content: ""; flex: 1; height: 1px; background: #29364c; }
+    .profilebox { background: #0a101b; border: 1px solid #29364c; padding: 14px; border-radius: 12px; overflow-wrap: anywhere; }
+    .profilebox p { margin: 8px 0; }
+    .hidden { display: none !important; }
+    .note { margin-top: 18px; font-size: 12px; color: #8e9bb0; }
+    #recaptcha-container { margin: 10px 0; overflow-x: auto; }
+    a { color: #ff8792; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="brand">
+      <h1><span>OFF</span>FRAME</h1>
+      <p>ESPORTS · PLAYER ACCOUNT</p>
+    </header>
+
+    <section class="card">
+      <div id="status" class="status" role="status" aria-live="polite">OFFFRAME Account System शुरू हो रहा है…</div>
+
+      <section id="authSection">
+        <div class="tabs">
+          <button type="button" id="signupTab" class="active">Sign Up</button>
+          <button type="button" id="loginTab" class="secondary">Login</button>
+        </div>
+
+        <form id="emailForm">
+          <h2 id="formTitle">अपना अकाउंट बनाएँ</h2>
+          <div id="signupFields">
+            <input id="username" type="text" placeholder="Username" maxlength="30" autocomplete="nickname" required>
+            <input id="gameId" type="text" placeholder="Game ID" maxlength="50" required>
+          </div>
+          <input id="email" type="email" placeholder="Email address" autocomplete="email" required>
+          <input id="password" type="password" placeholder="Password (कम-से-कम 6 अक्षर)" minlength="6" autocomplete="current-password" required>
+          <button id="emailSubmit" type="submit">Create Account</button>
+        </form>
+
+        <button id="googleButton" type="button" class="google">Google से Continue करें</button>
+
+        <div class="divider">या मोबाइल OTP से Login</div>
+        <p class="muted">मोबाइल नंबर country code के साथ लिखें, जैसे +91XXXXXXXXXX.</p>
+        <input id="phone" type="tel" placeholder="+91XXXXXXXXXX" autocomplete="tel">
+        <div id="recaptcha-container"></div>
+        <button id="sendOtpButton" type="button" class="secondary">OTP भेजें</button>
+        <div id="otpSection" class="hidden">
+          <input id="otp" inputmode="numeric" autocomplete="one-time-code" placeholder="SMS में आया OTP">
+          <button id="verifyOtpButton" type="button">OTP Verify करें</button>
+        </div>
+      </section>
+
+      <section id="profileSection" class="hidden">
+        <h2>आपका OFFFRAME Account</h2>
+        <div class="profilebox">
+          <p><strong>Email/Phone:</strong> <span id="profileContact">—</span></p>
+          <p><strong>Username:</strong> <span id="profileUsername">—</span></p>
+          <p><strong>Game ID:</strong> <span id="profileGameId">—</span></p>
+        </div>
+        <h2>Profile Edit करें</h2>
+        <form id="profileForm">
+          <input id="editUsername" placeholder="Username" maxlength="30" required>
+          <input id="editGameId" placeholder="Game ID" maxlength="50" required>
+          <button type="submit">Profile Save करें</button>
+        </form>
+        <button id="logoutButton" type="button" class="secondary">Logout</button>
+      </section>
+    </section>
+    <p class="note">अपना Password या OTP किसी के साथ साझा न करें। यह वेबसाइट Firebase Authentication और Firestore का उपयोग करती है।</p>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBfE9_mJ9p6yOfUTX_MgbpHH_yUDlYxhU",
+      authDomain: "offframe-esports.firebaseapp.com",
+      projectId: "offframe-esports",
+      storageBucket: "offframe-esports.firebasestorage.app",
+      messagingSenderId: "754745700489",
+      appId: "1:754745700489:web:02a51f583d0dc043b79658",
+      measurementId: "G-KJDPZDK7TN"
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const statusBox = $("status");
+    let mode = "signup";
+    let auth, db, currentUser = null, confirmationResult = null, recaptchaVerifier = null;
+
+    function say(message, error = false) {
+      statusBox.textContent = message;
+      statusBox.style.color = error ? "#ff8d98" : "#9ce8b5";
+    }
+
+    function errorMessage(error) {
+      const map = {
+        "auth/email-already-in-use": "यह Email पहले से इस्तेमाल हो रही है। Login करें।",
+        "auth/invalid-email": "Email सही नहीं है।",
+        "auth/weak-password": "Password कम-से-कम 6 अक्षर का रखें।",
+        "auth/invalid-credential": "Email या Password गलत है।",
+        "auth/user-not-found": "अकाउंट नहीं मिला। पहले Sign Up करें।",
+        "auth/wrong-password": "Password गलत है।",
+        "auth/popup-closed-by-user": "Google Login बंद हो गया। फिर कोशिश करें।",
+        "auth/unauthorized-domain": "GitHub Pages domain Firebase Authorized domains में जोड़ना होगा।",
+        "auth/operation-not-allowed": "यह Login method Firebase Console में Enable नहीं है।",
+        "auth/invalid-phone-number": "Country code के साथ सही मोबाइल नंबर लिखें।",
+        "auth/invalid-verification-code": "OTP गलत है।",
+        "auth/code-expired": "OTP expire हो गया। नया OTP मँगाएँ।",
+        "auth/too-many-requests": "बहुत कोशिशें हुईं। कुछ समय बाद फिर कोशिश करें।",
+        "auth/quota-exceeded": "Firebase SMS quota पूरी हो सकती है। Firebase Console में quota देखें।",
+        "auth/captcha-check-failed": "reCAPTCHA पूरा नहीं हुआ। पेज refresh करके कोशिश करें।",
+        "permission-denied": "Firestore Rules ने अनुमति नहीं दी। Rules की सेटिंग जाँचनी होगी।"
+      };
+      return map[error.code] || error.message || "समस्या हुई। दोबारा कोशिश करें।";
+    }
+
+    function setMode(next) {
+      mode = next;
+      const isSignup = mode === "signup";
+      $("signupFields").classList.toggle("hidden", !isSignup);
+      $("username").required = isSignup;
+      $("gameId").required = isSignup;
+      $("signupTab").classList.toggle("active", isSignup);
+      $("loginTab").classList.toggle("active", !isSignup);
+      $("formTitle").textContent = isSignup ? "अपना अकाउंट बनाएँ" : "अपने अकाउंट में Login करें";
+      $("emailSubmit").textContent = isSignup ? "Create Account" : "Login";
+    }
+    $("signupTab").addEventListener("click", () => setMode("signup"));
+    $("loginTab").addEventListener("click", () => setMode("login"));
+
+    async function loadProfile(user) {
+      const ref = db.collection("users").doc(user.uid);
+      let snap = await ref.get();
+      if (!snap.exists) {
+        await ref.set({
+          username: user.displayName || "",
+          gameId: "",
+          email: user.email || "",
+          phoneNumber: user.phoneNumber || "",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        snap = await ref.get();
+      }
+      const data = snap.data() || {};
+      $("profileContact").textContent = user.email || user.phoneNumber || "—";
+      $("profileUsername").textContent = data.username || "—";
+      $("profileGameId").textContent = data.gameId || "अभी नहीं जोड़ी गई";
+      $("editUsername").value = data.username || user.displayName || "";
+      $("editGameId").value = data.gameId || "";
+      $("authSection").classList.add("hidden");
+      $("profileSection").classList.remove("hidden");
+      say("Login सफल! OFFFRAME में आपका स्वागत है।");
+    }
+
+    try {
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      db = firebase.firestore();
+
+      auth.onAuthStateChanged(async user => {
+        currentUser = user;
+        if (!user) {
+          $("authSection").classList.remove("hidden");
+          $("profileSection").classList.add("hidden");
+          say("Sign Up या Login करके शुरू करें।");
+          return;
+        }
+        try {
+          await loadProfile(user);
+        } catch (error) {
+          say("Login हुआ, लेकिन प्रोफाइल लोड नहीं हुई: " + errorMessage(error), true);
+        }
+      });
+
+      $("emailForm").addEventListener("submit", async event => {
+        event.preventDefault();
+        $("emailSubmit").disabled = true;
+        try {
+          const email = $("email").value.trim();
+          const password = $("password").value;
+          if (mode === "signup") {
+            const username = $("username").value.trim();
+            const gameId = $("gameId").value.trim();
+            if (!username || !gameId) throw new Error("Username और Game ID भरें।");
+            const result = await auth.createUserWithEmailAndPassword(email, password);
+            await result.user.updateProfile({ displayName: username });
+            await db.collection("users").doc(result.user.uid).set({
+              username, gameId, email, phoneNumber: "",
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            say("अकाउंट बन गया! प्रोफाइल खुल रही है।");
+          } else {
+            await auth.signInWithEmailAndPassword(email, password);
+          }
+        } catch (error) {
+          say(errorMessage(error), true);
+        } finally {
+          $("emailSubmit").disabled = false;
+        }
+      });
+
+      $("googleButton").addEventListener("click", async () => {
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          await auth.signInWithPopup(provider);
+        } catch (error) {
+          say(errorMessage(error), true);
+        }
+      });
+
+      $("sendOtpButton").addEventListener("click", async () => {
+        $("sendOtpButton").disabled = true;
+        try {
+          const phone = $("phone").value.trim();
+          if (!/^\+[1-9]\d{7,14}$/.test(phone)) {
+            throw new Error("मोबाइल नंबर country code के साथ लिखें, जैसे +91XXXXXXXXXX.");
+          }
+          if (recaptchaVerifier) {
+            recaptchaVerifier.clear();
+            recaptchaVerifier = null;
+          }
+          recaptchaVerifier = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
+            size: "normal"
+          });
+          await recaptchaVerifier.render();
+          confirmationResult = await auth.signInWithPhoneNumber(phone, recaptchaVerifier);
+          $("otpSection").classList.remove("hidden");
+          say("OTP भेज दिया गया हो सकता है। SMS जाँचें।");
+        } catch (error) {
+          say(errorMessage(error), true);
+          if (recaptchaVerifier) {
+            try { recaptchaVerifier.clear(); } catch (_) {}
+            recaptchaVerifier = null;
+          }
+        } finally {
+          $("sendOtpButton").disabled = false;
+        }
+      });
+
+      $("verifyOtpButton").addEventListener("click", async () => {
+        try {
+          if (!confirmationResult) throw new Error("पहले OTP भेजें।");
+          const otp = $("otp").value.trim();
+          if (!/^\d{6}$/.test(otp)) throw new Error("6 अंकों का OTP लिखें।");
+          await confirmationResult.confirm(otp);
+        } catch (error) {
+          say(errorMessage(error), true);
+        }
+      });
+
+      $("profileForm").addEventListener("submit", async event => {
+        event.preventDefault();
+        if (!currentUser) return;
+        try {
+          const username = $("editUsername").value.trim();
+          const gameId = $("editGameId").value.trim();
+          if (!username || !gameId) throw new Error("Username और Game ID भरें।");
+          await db.collection("users").doc(currentUser.uid).set({
+            username, gameId,
+            email: currentUser.email || "",
+            phoneNumber: currentUser.phoneNumber || ""
+          }, { merge: true });
+          if (currentUser.email) await currentUser.updateProfile({ displayName: username });
+          await loadProfile(currentUser);
+          say("आपकी प्रोफाइल सेव हो गई।");
+        } catch (error) {
+          say(errorMessage(error), true);
+        }
+      });
+
+      $("logoutButton").addEventListener("click", async () => {
+        try {
+          await auth.signOut();
+          say("Logout हो गया।");
+        } catch (error) {
+          say(errorMessage(error), true);
+        }
+      });
+    } catch (error) {
+      say("Firebase शुरू नहीं हो पाया: " + errorMessage(error), true);
+    }
+  </script>
+</body>
+</html>
