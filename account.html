@@ -146,7 +146,7 @@
         "auth/captcha-check-failed": "reCAPTCHA पूरा नहीं हुआ। पेज refresh करके कोशिश करें।",
         "permission-denied": "Firestore Rules ने अनुमति नहीं दी। Rules की सेटिंग जाँचनी होगी।"
       };
-      return map[error.code] || error.message || "समस्या हुई। दोबारा कोशिश करें।";
+      return map[error.code] || (error && error.message) || "समस्या हुई। दोबारा कोशिश करें।";
     }
 
     function setMode(next) {
@@ -234,12 +234,27 @@
         }
       });
 
+      // Handle the result when Google redirects back to this page.
+      auth.getRedirectResult().then(result => {
+        if (result && result.user) {
+          say("Google Login सफल! प्रोफाइल लोड हो रही है।");
+        }
+      }).catch(error => {
+        say("Google Login समस्या: " + errorMessage(error), true);
+      });
+
+      // Redirect is more reliable than popups in many Android/mobile browsers.
       $("googleButton").addEventListener("click", async () => {
+        const button = $("googleButton");
+        button.disabled = true;
+        say("Google Login खोला जा रहा है… कृपया पेज बंद न करें।");
         try {
           const provider = new firebase.auth.GoogleAuthProvider();
-          await auth.signInWithPopup(provider);
+          provider.setCustomParameters({ prompt: "select_account" });
+          await auth.signInWithRedirect(provider);
         } catch (error) {
-          say(errorMessage(error), true);
+          say("Google Login शुरू नहीं हुआ: " + errorMessage(error), true);
+          button.disabled = false;
         }
       });
 
