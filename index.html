@@ -360,9 +360,529 @@ footer{border-top:1px solid var(--border);padding:28px 0;color:var(--muted)}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 
 <script>
-/* Firebase project configuration */
+/* OFFFRAME ESPORTS — Firebase Authentication & Profile */
+
 const firebaseConfig = {
   apiKey: "AIzaSyDBE9_mJ9p6yOfUTX_MgbpHH_yUDlYxhU",
   authDomain: "offframe-esports.firebaseapp.com",
   projectId: "offframe-esports",
-  storageBucket: "offframe-esports.firebasesto
+  appId: "1:754745700489:web:02a51f583d0dc043b79658",
+  messagingSenderId: "754745700489"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let authMode = "login";
+let confirmationResult = null;
+let recaptchaVerifier = null;
+let currentProfile = {};
+
+const $ = id => document.getElementById(id);
+
+function showMessage(id, message, success = false) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = message;
+  el.classList.toggle("success", success);
+}
+
+function friendlyError(error) {
+  const messages = {
+    "auth/invalid-email": "Email address सही नहीं है।",
+    "auth/user-not-found": "यह account नहीं मिला। पहले Sign Up करें।",
+    "auth/wrong-password": "Password गलत है।",
+    "auth/invalid-credential": "Email या Password गलत है।",
+    "auth/email-already-in-use": "इस Email से account पहले से है। Login करें।",
+    "auth/weak-password": "Password कम से कम 6 characters का रखें।",
+    "auth/popup-closed-by-user": "Login window बंद हो गई। फिर कोशिश करें।",
+    "auth/popup-blocked": "Popup block हुआ। Redirect से Login करें।",
+    "auth/unauthorized-domain": "Firebase में इस website का domain authorize करें।",
+    "auth/operation-not-allowed": "Firebase Console में यह sign-in method enable करें।",
+    "auth/invalid-phone-number": "Country code सहित सही phone number डालें।",
+    "auth/invalid-verification-code": "OTP गलत है। दोबारा जाँचें।",
+    "auth/code-expired": "OTP expire हो गया। नया OTP लें।",
+    "auth/too-many-requests": "बहुत कोशिशें हुईं। कुछ देर बाद फिर कोशिश करें।",
+    "auth/network-request-failed": "Internet connection जाँचें।",
+    "auth/missing-phone-number": "Phone number डालें।",
+    "auth/captcha-check-failed": "reCAPTCHA पूरा करके फिर कोशिश करें।"
+  };
+
+  return messages[error.code] ||
+    (error.message || "कुछ गलत हुआ। फिर कोशिश करें.");
+}
+
+function openModal(mode = "login") {
+  $("authModal").classList.add("open");
+  $("overlay").classList.add("open");
+  document.body.classList.add("locked");
+  setAuthMode(mode);
+}
+
+function closeModal() {
+  $("authModal").classList.remove("open");
+  $("overlay").classList.remove("open");
+  document.body.classList.remove("locked");
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  const signup = mode === "signup";
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.classList.toggle("active", tab.dataset.mode === mode);
+  });
+
+  $("authTitle").textContent = signup ? "Create your account" : "Welcome back";
+  $("signupFields").classList.toggle("hidden", !signup);
+  $("newUsername").required = signup;
+  $("password").autocomplete = signup ? "new-password" : "current-password";
+  $("emailSubmit").textContent = signup ? "Create Account" : "Login with Email";
+  showMessage("authMessage", "");
+}
+
+function openDrawer() {
+  $("drawer").classList.add("open");
+  $("drawer").setAttribute("aria-hidden", "false");
+  $("overlay").classList.add("open");
+  document.body.classList.add("locked");
+}
+
+function closeDrawer() {
+  $("drawer").classList.remove("open");
+  $("drawer").setAttribute("aria-hidden", "true");
+  $("overlay").classList.remove("open");
+  document.body.classList.remove("locked");
+}
+
+function closePanels() {
+  if ($("authModal").classList.contains("open")) closeModal();
+  else closeDrawer();
+}
+
+function setAvatar(element, name, photoData) {
+  if (!element) return;
+  element.replaceChildren();
+
+  if (photoData) {
+    const img = document.createElement("img");
+    img.src = photoData;
+    img.alt = "Profile photo";
+    element.appendChild(img);
+  } else {
+    element.textContent = (name || "P").trim().charAt(0).toUpperCase() || "P";
+  }
+}
+
+function renderSocials(profile) {
+  const container = $("profileSocials");
+  container.replaceChildren();
+
+  const links = [
+    ["Instagram", profile.instagram],
+    ["YouTube", profile.youtube],
+    ["Facebook", profile.facebook],
+    ["X", profile.xlink]
+  ];
+
+  let found = false;
+
+  links.forEach(([label, url]) => {
+    if (!url) return;
+    try {
+      const parsed = new URL(url);
+      if (!["https:", "http:"].includes(parsed.protocol)) return;
+
+      const a = document.createElement("a");
+      a.href = parsed.href;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = label + " ↗";
+      container.appendChild(a);
+      found = true;
+    } catch (_) {}
+  });
+
+  if (!found) {
+    const span = document.createElement("span");
+    span.className = "small";
+    span.textContent = "Add your links above.";
+    container.appendChild(span);
+  }
+}
+
+function fillProfile(profile, user) {
+  currentProfile = profile || {};
+  const name = currentProfile.username || user.email?.split("@")[0] || "Player";
+
+  $("username").value = currentProfile.username || name;
+  $("gameId").value = currentProfile.gameId || "";
+  $("bio").value = currentProfile.bio || "";
+  $("instagram").value = currentProfile.instagram || "";
+  $("youtube").value = currentProfile.youtube || "";
+  $("facebook").value = currentProfile.facebook || "";
+  $("xlink").value = currentProfile.xlink || "";
+
+  $("summaryName").textContent = name;
+  $("summaryEmail").textContent = user.email || user.phoneNumber || "Signed in";
+  setAvatar($("largeAvatar"), name, currentProfile.photoData);
+  setAvatar($("profileOpen"), name, currentProfile.photoData);
+  renderSocials(currentProfile);
+}
+
+async function ensureUserProfile(user, signupName = "", signupGameId = "") {
+  const ref = db.collection("users").doc(user.uid);
+  const snap = await ref.get();
+
+  if (!snap.exists) {
+    const name = signupName.trim() ||
+      user.displayName ||
+      user.email?.split("@")[0] ||
+      "Player";
+
+    const profile = {
+      username: name,
+      gameId: signupGameId.trim(),
+      email: user.email || "",
+      bio: "",
+      instagram: "",
+      youtube: "",
+      facebook: "",
+      xlink: "",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    await ref.set(profile);
+    return profile;
+  }
+
+  const profile = snap.data() || {};
+
+  // Keep required profile fields available for your Firestore rules.
+  const updates = {};
+  if (!("username" in profile)) {
+    updates.username = signupName.trim() ||
+      user.displayName || user.email?.split("@")[0] || "Player";
+  }
+  if (!("gameId" in profile)) updates.gameId = "";
+  if (!("email" in profile)) updates.email = user.email || "";
+
+  if (Object.keys(updates).length) {
+    updates.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+    await ref.set(updates, { merge: true });
+    return { ...profile, ...updates };
+  }
+
+  return profile;
+}
+
+async function refreshUser(user) {
+  if (!user) {
+    $("loginOpen").classList.remove("hidden");
+    $("signupOpen").classList.remove("hidden");
+    $("profileOpen").classList.add("hidden");
+    $("summaryName").textContent = "Player";
+    $("summaryEmail").textContent = "Not signed in";
+    setAvatar($("largeAvatar"), "Player", "");
+    return;
+  }
+
+  $("loginOpen").classList.add("hidden");
+  $("signupOpen").classList.add("hidden");
+  $("profileOpen").classList.remove("hidden");
+
+  try {
+    const profile = await ensureUserProfile(user);
+    fillProfile(profile, user);
+  } catch (error) {
+    console.error("Profile load error:", error);
+    showMessage("profileMessage",
+      "Login हो गया, लेकिन profile load नहीं हुई: " + friendlyError(error));
+  }
+}
+
+// Open / close authentication and profile panels.
+$("loginOpen").addEventListener("click", () => openModal("login"));
+$("signupOpen").addEventListener("click", () => openModal("signup"));
+$("authClose").addEventListener("click", closeModal);
+$("drawerClose").addEventListener("click", closeDrawer);
+$("profileOpen").addEventListener("click", openDrawer);
+$("overlay").addEventListener("click", closePanels);
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => setAuthMode(tab.dataset.mode));
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closePanels();
+});
+
+// Email sign-up and login.
+$("emailForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const email = $("email").value.trim();
+  const password = $("password").value;
+  const username = $("newUsername").value.trim();
+  const gameId = $("newGameId").value.trim();
+
+  const button = $("emailSubmit");
+  button.disabled = true;
+  showMessage("authMessage", "Please wait...");
+
+  try {
+    let user;
+
+    if (authMode === "signup") {
+      if (!username) throw new Error("अपना Username डालें।");
+
+      const credential = await auth.createUserWithEmailAndPassword(email, password);
+      user = credential.user;
+
+      // Set display name before creating the Firestore profile.
+      await user.updateProfile({ displayName: username });
+      await ensureUserProfile(user, username, gameId);
+    } else {
+      const credential = await auth.signInWithEmailAndPassword(email, password);
+      user = credential.user;
+      await ensureUserProfile(user);
+    }
+
+    await refreshUser(user);
+    closeModal();
+    showMessage("profileMessage", "Account सफलतापूर्वक तैयार है।", true);
+  } catch (error) {
+    console.error("Email authentication error:", error);
+    showMessage("authMessage", friendlyError(error));
+  } finally {
+    button.disabled = false;
+  }
+});
+
+// Google sign-in.
+$("googleLogin").addEventListener("click", async () => {
+  const button = $("googleLogin");
+  button.disabled = true;
+  showMessage("authMessage", "Google Login खुल रहा है...");
+
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    await auth.signInWithPopup(provider);
+  } catch (error) {
+    console.error("Google sign-in error:", error);
+
+    if (error.code === "auth/popup-blocked" ||
+        error.code === "auth/operation-not-supported-in-this-environment") {
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await auth.signInWithRedirect(provider);
+      } catch (redirectError) {
+        showMessage("authMessage", friendlyError(redirectError));
+      }
+    } else {
+      showMessage("authMessage", friendlyError(error));
+    }
+  } finally {
+    button.disabled = false;
+  }
+});
+
+// Phone OTP: render reCAPTCHA only when needed.
+function getRecaptcha() {
+  if (recaptchaVerifier) return recaptchaVerifier;
+
+  recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+    "recaptcha-container",
+    { size: "normal" },
+    auth
+  );
+
+  return recaptchaVerifier;
+}
+
+$("sendOtp").addEventListener("click", async () => {
+  const phone = $("phone").value.trim();
+  const button = $("sendOtp");
+  button.disabled = true;
+
+  try {
+    if (!phone.startsWith("+")) {
+      throw new Error("Phone number country code के साथ डालें, जैसे +91XXXXXXXXXX।");
+    }
+
+    showMessage("authMessage", "reCAPTCHA और OTP तैयार हो रहे हैं...");
+    const verifier = getRecaptcha();
+    await verifier.render();
+
+    confirmationResult = await auth.signInWithPhoneNumber(phone, verifier);
+    $("otpArea").classList.remove("hidden");
+    showMessage("authMessage", "OTP भेज दिया गया है। SMS जाँचें।", true);
+  } catch (error) {
+    console.error("Send OTP error:", error);
+    showMessage("authMessage", friendlyError(error));
+
+    if (recaptchaVerifier) {
+      try { recaptchaVerifier.clear(); } catch (_) {}
+      recaptchaVerifier = null;
+      $("recaptcha-container").replaceChildren();
+    }
+  } finally {
+    button.disabled = false;
+  }
+});
+
+$("verifyOtp").addEventListener("click", async () => {
+  const otp = $("otp").value.trim();
+
+  if (!confirmationResult) {
+    showMessage("authMessage", "पहले Send OTP दबाएँ।");
+    return;
+  }
+  if (!/^\d{6}$/.test(otp)) {
+    showMessage("authMessage", "6 अंकों का OTP डालें।");
+    return;
+  }
+
+  $("verifyOtp").disabled = true;
+
+  try {
+    await confirmationResult.confirm(otp);
+    $("otp").value = "";
+    $("otpArea").classList.add("hidden");
+    closeModal();
+  } catch (error) {
+    console.error("OTP verification error:", error);
+    showMessage("authMessage", friendlyError(error));
+  } finally {
+    $("verifyOtp").disabled = false;
+  }
+});
+
+// Resize photo before storing it in the user's Firestore profile.
+async function resizePhoto(file) {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("कृपया image file चुनें।");
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("Image 5 MB से छोटी होनी चाहिए।");
+  }
+
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Image पढ़ी नहीं जा सकी।"));
+    reader.readAsDataURL(file);
+  });
+
+  const img = await new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Image खुल नहीं सकी।"));
+    image.src = dataUrl;
+  });
+
+  const canvas = document.createElement("canvas");
+  const maxSide = 256;
+  const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+
+  canvas.width = Math.max(1, Math.round(img.width * scale));
+  canvas.height = Math.max(1, Math.round(img.height * scale));
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", 0.7);
+}
+
+// Save profile.
+$("profileForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const user = auth.currentUser;
+  if (!user) {
+    showMessage("profileMessage", "पहले Login करें।");
+    return;
+  }
+
+  const button = $("saveProfile");
+  button.disabled = true;
+  showMessage("profileMessage", "Profile save हो रही है...");
+
+  try {
+    const username = $("username").value.trim();
+    if (!username) throw new Error("Username खाली नहीं हो सकता।");
+
+    const file = $("photo").files[0];
+    let photoData = currentProfile.photoData || "";
+
+    if (file) photoData = await resizePhoto(file);
+
+    const profile = {
+      username,
+      gameId: $("gameId").value.trim(),
+      email: user.email || "",
+      bio: $("bio").value.trim(),
+      photoData,
+      instagram: $("instagram").value.trim(),
+      youtube: $("youtube").value.trim(),
+      facebook: $("facebook").value.trim(),
+      xlink: $("xlink").value.trim(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    await db.collection("users").doc(user.uid).set(profile, { merge: true });
+
+    currentProfile = { ...currentProfile, ...profile };
+    fillProfile(currentProfile, user);
+    $("photo").value = "";
+    showMessage("profileMessage", "Profile सफलतापूर्वक save हो गई।", true);
+  } catch (error) {
+    console.error("Save profile error:", error);
+    showMessage("profileMessage", friendlyError(error));
+  } finally {
+    button.disabled = false;
+  }
+});
+
+// More Details toggle.
+$("moreToggle").addEventListener("click", () => {
+  const expanded = $("moreToggle").getAttribute("aria-expanded") === "true";
+  $("moreToggle").setAttribute("aria-expanded", String(!expanded));
+  $("moreContent").classList.toggle("hidden", expanded);
+  $("moreIcon").textContent = expanded ? "＋" : "−";
+});
+
+// Logout.
+$("logout").addEventListener("click", async () => {
+  try {
+    await auth.signOut();
+    closeDrawer();
+    openModal("login");
+    showMessage("authMessage", "आप Logout हो गए हैं।", true);
+  } catch (error) {
+    showMessage("profileMessage", friendlyError(error));
+  }
+});
+
+// Keep UI in sync with Firebase login state.
+auth.onAuthStateChanged(async user => {
+  await refreshUser(user);
+});
+
+// Handle Google redirect sign-in on mobile.
+auth.getRedirectResult().catch(error => {
+  console.error("Google redirect error:", error);
+  showMessage("authMessage", friendlyError(error));
+});
+
+// Footer year.
+$("year").textContent = new Date().getFullYear();
+
+// Initialize the UI.
+setAuthMode("login");
+</script>
+</body>
+</html>
