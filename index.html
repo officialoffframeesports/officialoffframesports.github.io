@@ -1,165 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#08090d">
-  <meta name="description" content="OFFFRAME Esports — Your Game. Your Moment. Join the community, compete in tournaments and get featured.">
-  <title>OFFFRAME Esports | Your Game. Your Moment.</title>
-  <style>
-    :root { --bg:#08090d; --panel:#11131c; --text:#f5f7ff; --muted:#a5a9b9; --red:#ff304f; --blue:#3985ff; }
-    * { box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
-    body {
-      margin:0; color:var(--text);
-      background:radial-gradient(ellipse at 15% 5%,#32101f 0,transparent 38%),radial-gradient(ellipse at 90% 25%,#101e42 0,transparent 35%),var(--bg);
-      font-family:Arial,Helvetica,sans-serif; line-height:1.6;
-    }
-    a { color:inherit; text-decoration:none; }
-    .wrap { width:min(1100px,90%); margin:auto; }
-    header { position:sticky; top:0; z-index:10; background:#08090de8; backdrop-filter:blur(14px); border-bottom:1px solid #ffffff14; }
-    nav { min-height:72px; display:flex; justify-content:space-between; align-items:center; gap:18px; }
-    .logo { font-size:22px; font-weight:900; letter-spacing:2px; white-space:nowrap; }
-    .logo span { color:var(--red); }
-    .navright { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:16px; }
-    .navlinks { display:flex; flex-wrap:wrap; gap:18px; color:var(--muted); font-size:14px; }
-    .authlinks { display:flex; gap:8px; align-items:center; }
-    .navbtn { display:inline-block; padding:8px 13px; border-radius:8px; border:1px solid #ffffff35; font-size:14px; font-weight:800; white-space:nowrap; }
-    .navbtn.signup { background:linear-gradient(110deg,var(--red),#d91f61); border-color:#ff637b66; }
-    .hero { padding:95px 0 85px; text-align:center; }
-    .eyebrow { color:#ff7185; text-transform:uppercase; letter-spacing:3px; font-size:12px; font-weight:800; }
-    h1 { margin:16px 0; font-size:clamp(43px,9vw,86px); line-height:1.03; letter-spacing:-3px; }
-    h1 span { background:linear-gradient(90deg,var(--red),#ff6582,var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-    .hero p { max-width:640px; margin:22px auto; color:var(--muted); font-size:17px; }
-    .actions { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-top:28px; }
-    .btn { display:inline-block; padding:12px 20px; border-radius:9px; background:linear-gradient(110deg,var(--red),#d91f61); font-weight:800; border:1px solid #ff637b66; }
-    .btn.secondary { background:#ffffff08; border:1px solid #ffffff30; }
-    section { padding:58px 0; }
-    .section-head { margin-bottom:25px; }
-    .section-head h2 { margin:0; font-size:clamp(27px,5vw,40px); }
-    .section-head p { color:var(--muted); margin-top:7px; }
-    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-    .card { background:linear-gradient(145deg,#171925,#0e1017); border:1px solid #ffffff15; border-radius:16px; padding:24px; }
-    .card .symbol { font-size:28px; }
-    .card h3 { margin:8px 0; font-size:21px; }
-    .card p { margin:0; color:var(--muted); }
-    .highlight { border-color:#ff304f70; background:linear-gradient(120deg,#29111c,#111522); }
-    .socials { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
-    .socials a { border:1px solid #ffffff26; background:#ffffff08; padding:9px 13px; border-radius:8px; font-size:14px; }
-    .note { color:var(--muted); font-size:13px; }
-    footer { border-top:1px solid #ffffff17; padding:26px 0; color:var(--muted); font-size:13px; text-align:center; }
-    @media (max-width:760px) {
-      nav { align-items:flex-start; flex-direction:column; padding:14px 0; gap:12px; }
-      .navright { width:100%; align-items:flex-start; flex-direction:column; gap:12px; }
-      .navlinks { gap:12px; }
-      .authlinks { width:100%; }
-      .navbtn { text-align:center; }
-      .hero { padding:70px 0 55px; }
-      h1 { letter-spacing:-1.5px; }
-      .grid { grid-template-columns:1fr; }
-      section { padding:42px 0; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#08090d">
+<meta name="description" content="OFFFRAME Esports — tournaments, gaming community and creator opportunities.">
+<title>OFFFRAME Esports | Your Game. Your Moment.</title>
+
+<style>
+:root {
+  --bg:#08090d;
+  --panel:#121520;
+  --text:#f5f7ff;
+  --muted:#a5a9b9;
+  --red:#ff304f;
+  --blue:#3985ff;
+  --border:#ffffff18;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;line-height:1.6
+}
+body.locked{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.container{width:min(1150px,92%);margin:auto}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;padding:11px 16px;border-radius:10px;
+  border:1px solid var(--border);background:#ffffff09;
+  color:white;font-weight:bold
+}
+.btn:hover{border-color:#ffffff60}
+.primary{background:linear-gradient(110deg,var(--red),#d51f72);border:0}
+.blue{background:linear-gradient(110deg,#2868ed,var(--blue));border:0}
+.btn:disabled{opacity:.55;cursor:wait}
+header{
+  position:sticky;top:0;z-index:10;background:#08090df0;
+  backdrop-filter:blur(15px);border-bottom:1px solid var(--border)
+}
+nav{min-height:72px;display:flex;align-items:center;gap:20px}
+.brand{font-weight:1000;letter-spacing:1px;white-space:nowrap}
+.brand b{color:var(--red)}
+.navlinks{display:flex;gap:20px;margin-left:auto}
+.navlinks a{color:#c9ccda;font-size:14px}
+.actions{display:flex;align-items:center;gap:8px}
+.profile-trigger{
+  width:42px;height:42px;border-radius:50%;overflow:hidden;
+  border:1px solid #ffffff40;background:linear-gradient(135deg,var(--red),var(--blue));
+  color:white;font-weight:bold
+}
+.profile-trigger img{width:100%;height:100%;object-fit:cover}
+.hero{
+  padding:90px 0 70px;
+  background:radial-gradient(ellipse at 10% 0%,#1a2443,transparent 45%),
+             radial-gradient(ellipse at 90% 30%,#35101d,transparent 35%)
+}
+.hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:35px;align-items:center}
+.eyebrow{font-size:12px;font-weight:bold;letter-spacing:3px;color:#ff7387;text-transform:uppercase}
+h1{font-size:clamp(48px,8vw,94px);line-height:.98;letter-spacing:-4px;margin:18px 0}
+h1 span{display:block;background:linear-gradient(100deg,#ff526b,#f5f7ff,#5da0ff);color:transparent;background-clip:text}
+.hero p{max-width:620px;color:#b8bdcc;font-size:17px}
+.hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px}
+.hero-art{
+  min-height:320px;display:grid;place-items:center;text-align:center;
+  border:1px solid var(--border);border-radius:25px;
+  background:linear-gradient(145deg,#20263b,#0d0e16);
+  box-shadow:0 20px 70px #0008
+}
+.hero-art strong{font-size:100px;font-style:italic;letter-spacing:-10px;
+  background:linear-gradient(130deg,#fff,var(--red),var(--blue));
+  color:transparent;background-clip:text}
+.hero-art div{letter-spacing:5px;font-weight:bold}
+section.content{padding:65px 0}
+.section-title{font-size:clamp(28px,4vw,44px);margin:8px 0}
+.section-intro{color:var(--muted);max-width:650px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:25px}
+.card{
+  background:linear-gradient(145deg,#171a25,#0e1018);
+  border:1px solid var(--border);border-radius:18px;padding:23px
+}
+.card h3{margin:10px 0}
+.card p{color:var(--muted);margin-bottom:0}
+.icon{font-size:28px}
+.milestone{
+  margin-top:25px;padding:25px;border:1px solid #ff304f50;
+  border-radius:20px;background:linear-gradient(110deg,#25121d,#111827)
+}
+.socials{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px}
+.socials a{padding:12px 15px;border:1px solid var(--border);border-radius:10px}
+footer{border-top:1px solid var(--border);padding:28px 0;color:var(--muted)}
+.footer-inner{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+
+/* Authentication modal */
+.overlay{
+  position:fixed;inset:0;background:#000b;backdrop-filter:blur(6px);
+  z-index:30;display:none
+}
+.overlay.open{display:block}
+.modal{
+  position:fixed;z-index:31;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:min(450px,94%);max-height:90vh;overflow:auto;
+  display:none;background:var(--panel);border:1px solid var(--border);
+  border-radius:20px;padding:23px;box-shadow:0 20px 80px #000a
+}
+.modal.open{display:block}
+.modal-head,.drawer-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.modal h2,.drawer h2{margin:0}
+.close{background:#ffffff10;color:white;border:1px solid var(--border);border-radius:9px;padding:7px 12px;font-size:20px}
+.tabs{display:flex;gap:8px;margin:20px 0}
+.tab{flex:1;padding:10px;background:#ffffff08;color:white;border:1px solid var(--border);border-radius:9px}
+.tab.active{border-color:var(--red);background:#ff304f20}
+.field{display:grid;gap:6px;margin:13px 0}
+.field label{font-size:13px;color:#d4d7e2;font-weight:bold}
+.field input,.field textarea{
+  width:100%;padding:12px;background:#090b12;color:white;
+  border:1px solid #ffffff25;border-radius:10px;outline:none
+}
+.field input:focus,.field textarea:focus{border-color:var(--blue)}
+.field textarea{min-height:75px;resize:vertical}
+.full{width:100%}
+.message{font-size:13px;color:#ff9eae;overflow-wrap:anywhere;margin-top:10px}
+.message.success{color:#9ff0c1}
+.small{font-size:12px;color:#9298aa}
+.divider{text-align:center;color:#8c92a4;font-size:12px;margin:15px 0}
+#recaptcha-container{margin:10px 0;overflow:auto}
+
+/* Right-side profile drawer */
+.drawer{
+  position:fixed;z-index:32;right:0;top:0;height:100dvh;
+  width:min(430px,100%);overflow-y:auto;padding:22px;
+  background:#0c0e15;border-left:1px solid var(--border);
+  transform:translateX(105%);transition:transform .25s ease
+}
+.drawer.open{transform:translateX(0)}
+.profile-summary{display:flex;align-items:center;gap:14px;padding:22px 0;border-bottom:1px solid var(--border)}
+.avatar{
+  width:65px;height:65px;flex-shrink:0;overflow:hidden;
+  border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--red),var(--blue));font-size:23px;font-weight:bold
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.profile-summary h3{margin:0;overflow-wrap:anywhere}
+.profile-summary p{margin:3px 0;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.drawer-section{padding:18px 0;border-bottom:1px solid var(--border)}
+.drawer-section h3{font-size:16px;margin:0 0 12px}
+.upload-label{display:inline-block;padding:9px;border:1px solid var(--border);border-radius:9px;font-size:13px;cursor:pointer}
+.upload-label input{display:none}
+.profile-socials{display:flex;gap:8px;flex-wrap:wrap}
+.profile-socials a,.placeholder{
+  padding:9px;border:1px solid var(--border);border-radius:9px;
+  font-size:12px;color:#c9ccda
+}
+.placeholder{margin:8px 0;color:#969caf}
+.more-toggle{display:flex;justify-content:space-between;width:100%;background:none;border:0;color:white;padding:0;font-weight:bold}
+.more-content{display:grid;gap:9px;padding-top:14px}
+@media(max-width:800px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-art{min-height:220px}
+  .grid{grid-template-columns:1fr 1fr}
+  .navlinks{gap:10px}
+  .navlinks a{font-size:12px}
+}
+@media(max-width:600px){
+  nav{flex-wrap:wrap;padding:12px 0}
+  .navlinks{order:3;width:100%;overflow-x:auto;margin:0;padding:5px 0}
+  .actions{margin-left:auto}
+  .actions .btn{padding:9px;font-size:12px}
+  .hero{padding:55px 0}
+  h1{letter-spacing:-2px}
+  .grid{grid-template-columns:1fr}
+  section.content{padding:48px 0}
+}
+</style>
 </head>
+
 <body>
-  <header>
-    <nav class="wrap">
-      <a class="logo" href="#home">OFF<span>FRAME</span></a>
-      <div class="navright">
-        <div class="navlinks">
-          <a href="#tournaments">Tournaments</a>
-          <a href="#community">Community</a>
-          <a href="#highlights">Highlights</a>
-          <a href="#products">Products</a>
-        </div>
-        <div class="authlinks">
-          <a class="navbtn" href="account.html">Login</a>
-          <a class="navbtn signup" href="account.html">Sign Up ↗</a>
-        </div>
-      </div>
-    </nav>
-  </header>
+<header>
+  <nav class="container">
+    <a href="#home" class="brand">◈ OFFFRAME <b>ESPORTS</b></a>
+    <div class="navlinks" id="navlinks">
+      <a href="#tournaments">Tournaments</a>
+      <a href="#community">Community</a>
+      <a href="#highlights">Highlights</a>
+      <a href="#products">Products</a>
+    </div>
+    <div class="actions">
+      <button class="btn" id="loginOpen">Login</button>
+      <button class="btn primary" id="signupOpen">Sign Up</button>
+      <button class="profile-trigger hidden" id="profileOpen" aria-label="Open profile">P</button>
+    </div>
+  </nav>
+</header>
 
-  <main>
-    <section class="hero wrap" id="home">
-      <div class="eyebrow">Welcome to OFFFRAME Esports</div>
-      <h1>YOUR GAME.<br><span>YOUR MOMENT.</span></h1>
-      <p>Play with passion. Compete with purpose. Join the community where every player gets a chance to shine.</p>
-      <div class="actions">
-        <a class="btn" href="#tournaments">Explore Tournaments</a>
-        <a class="btn secondary" href="#community">Join the Community</a>
-        <a class="btn secondary" href="account.html">Player Login / Sign Up</a>
+<main>
+<section class="hero" id="home">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow">Gaming • Competition • Community</div>
+      <h1>YOUR GAME.<span>YOUR MOMENT.</span></h1>
+      <p>Play with purpose. Compete with your squad. Build your name. OFFFRAME connects gamers through tournaments, community events, creator opportunities and standout gameplay.</p>
+      <div class="hero-buttons">
+        <a class="btn primary" href="#tournaments">Explore Tournaments ↗</a>
+        <a class="btn" href="#community">Join Community</a>
+        <a class="btn blue" href="#partner-program">Partner Program</a>
       </div>
-    </section>
+    </div>
+    <div class="hero-art"><div><strong>OF</strong><div>OFFFRAME ESPORTS</div><p class="small">YOUR GAME. YOUR MOMENT.</p></div></div>
+  </div>
+</section>
 
-    <section class="wrap" id="tournaments">
-      <div class="section-head"><div class="eyebrow">Compete • Improve • Win</div><h2>Choose Your Battle</h2><p>Solo skills or team strategy. Your next moment starts here.</p></div>
-      <div class="grid">
-        <article class="card"><div class="symbol">⚡</div><h3>Solo Tournaments</h3><p>Stand on your own, prove your skills and make your gameplay count.</p></article>
-        <article class="card"><div class="symbol">🎮</div><h3>Team Tournaments</h3><p>Build your squad, coordinate your strategy and compete together.</p></article>
-      </div>
-    </section>
+<section class="content" id="tournaments"><div class="container">
+  <div class="eyebrow">Enter the arena</div><h2 class="section-title">Tournaments built for players.</h2>
+  <p class="section-intro">Solo skill or squad teamwork — compete, improve and earn recognition.</p>
+  <div class="grid">
+    <article class="card"><div class="icon">🎯</div><h3>Solo Showdown</h3><p>Show your aim, movement, game sense and clutch decisions.</p></article>
+    <article class="card"><div class="icon">🛡️</div><h3>Squad Battle</h3><p>Bring communication, coordination and teamwork to the arena.</p></article>
+    <article class="card"><div class="icon">🏆</div><h3>Player Spotlight</h3><p>Winners and standout players may be featured under event rules.</p></article>
+  </div>
+  <p class="small">Event dates, eligibility, entry rules and prizes will be announced on official OFFFRAME channels.</p>
+</div></section>
 
-    <section class="wrap" id="community">
-      <div class="card highlight">
-        <div class="eyebrow">Built by the community</div><h2>Every 100 New Followers. A New Opportunity.</h2>
-        <p>Our first tournament will be announced at 500 followers. After that, every 100 new followers unlocks another community tournament. Follow our official channels for updates.</p>
-        <div class="actions"><a class="btn" href="#socials">Follow OFFFRAME</a></div>
-      </div>
-    </section>
+<section class="content" id="community"><div class="container">
+  <div class="eyebrow">Grow together</div><h2 class="section-title">Every milestone unlocks more.</h2>
+  <p class="section-intro">Planned community milestones: every +50 followers up to 1,000, then every +100 followers.</p>
+  <div class="milestone"><h3>50 → 100 → 150 → 200+</h3><p class="muted">Solo + Team tournament milestones. Follow OFFFRAME's official channel for confirmed announcements.</p>
+    <a class="btn primary" target="_blank" rel="noopener" href="https://whatsapp.com/channel/0029Vb8i9DC9MF8yFGJ4yU0m">Join OFFFRAME Channel ↗</a>
+  </div>
+</div></section>
 
-    <section class="wrap" id="live-zone">
-      <div class="section-head"><div class="eyebrow">OFFFRAME Broadcast Network</div><h2>OFFFRAME Live Zone</h2><p>Live action, upcoming matches and unforgettable gameplay moments.</p></div>
-      <div class="grid">
-        <article class="card"><div class="eyebrow">🔴 LIVE STATUS</div><h3>Live Streams</h3><p>OFFFRAME streams and verified partner broadcasts will appear here.</p><p class="note">No live stream has been added yet.</p><a class="btn" href="#stream-links">Explore Streams</a></article>
-        <article class="card"><div class="eyebrow">📅 COMING SOON</div><h3>Upcoming Matches</h3><p>Check back for upcoming OFFFRAME tournaments, match schedules and stream announcements.</p><a class="btn secondary" href="#socials">Get Updates</a></article>
-        <article class="card"><div class="eyebrow">🎬 WATCH AGAIN</div><h3>Match Replays</h3><p>Past matches, best plays and selected partner highlights will be featured here.</p><a class="btn secondary" href="#highlights">View Highlights</a></article>
-      </div>
-      <div class="card" id="stream-links" style="margin-top:20px">
-        <div class="eyebrow">Multiple platforms</div><h3>Watch OFFFRAME</h3><p>Choose an official channel to discover streams and announcements.</p>
-        <div class="actions">
-          <a class="btn" href="https://www.youtube.com/@OFFFRAMEOFFICIAL-r" target="_blank" rel="noopener noreferrer">YouTube ↗️</a>
-          <a class="btn secondary" href="https://www.instagram.com/offframeofficial/" target="_blank" rel="noopener noreferrer">Instagram ↗️</a>
-          <a class="btn secondary" href="https://www.facebook.com/share/18kebE6TtT/" target="_blank" rel="noopener noreferrer">Facebook ↗️</a>
-          <a class="btn secondary" href="https://www.twitch.tv/" target="_blank" rel="noopener noreferrer">Twitch ↗️</a>
-          <a class="btn secondary" href="https://kick.com/" target="_blank" rel="noopener noreferrer">Kick ↗️</a>
-        </div>
-        <p class="note">Live video embeds and match schedules will be added when official stream links are available.</p>
-      </div>
-    </section>
+<section class="content" id="highlights"><div class="container">
+  <div class="eyebrow">Moments worth watching</div><h2 class="section-title">OFFFRAME Live Zone.</h2>
+  <div class="grid">
+    <article class="card"><div class="icon">⚡</div><h3>Clutch Moments</h3><p>Big plays, smart rotations and standout gameplay.</p></article>
+    <article class="card"><div class="icon">🎬</div><h3>Winner Features</h3><p>Community highlights, event winners and creator collaborations.</p></article>
+    <article class="card"><div class="icon">📈</div><h3>Player Growth</h3><p>Build your skills, connect with players and grow your presence.</p></article>
+  </div>
+</div></section>
 
-    <section class="wrap" id="highlights">
-      <div class="section-head"><div class="eyebrow">Your moment deserves the spotlight</div><h2>Player Highlights</h2><p>Great plays, tournament winners and community stories belong here.</p></div>
-      <div class="grid">
-        <article class="card"><div class="symbol">🏆</div><h3>Winners & Standout Players</h3><p>Our tournament results and featured players will be showcased here.</p></article>
-        <article class="card"><div class="symbol">🎬</div><h3>Gameplay Features</h3><p>Epic moments and selected player highlights across OFFFRAME channels.</p></article>
-      </div>
-    </section>
+<section class="content" id="refer"><div class="container">
+  <div class="eyebrow">Bring your people</div><h2 class="section-title">Refer to Earn.</h2>
+  <p class="section-intro">Share official OFFFRAME links with friends. Any referral benefits will be published with campaign rules.</p>
+  <a class="btn primary" target="_blank" rel="noopener" href="https://whatsapp.com/channel/0029Vb8i9DC9MF8yFGJ4yU0m">Invite & Share ↗</a>
+</div></section>
 
-    <section class="wrap">
-      <div class="card"><div class="eyebrow">Grow together</div><h2>REFER TO EARN</h2><p>Invite friends and help grow the OFFFRAME community. Check our official WhatsApp channel for the latest referral rules and eligible rewards.</p><p class="note">Rewards and eligibility depend on the official published rules.</p><div class="actions"><a class="btn secondary" href="#socials">Find Official Channels</a></div></div>
-    </section>
+<section class="content" id="partner-program"><div class="container">
+  <div class="eyebrow">Create with us</div><h2 class="section-title">OFFFRAME Partner Program.</h2>
+  <p class="section-intro">For gaming creators, event partners, community builders and brands interested in working with OFFFRAME.</p>
+  <div class="grid">
+    <article class="card"><div class="icon">🎮</div><h3>Creator Partners</h3><p>Gaming videos, highlights and event coverage.</p></article>
+    <article class="card"><div class="icon">🤝</div><h3>Event Partners</h3><p>Tournament collaborations and community activations.</p></article>
+    <article class="card"><div class="icon">📣</div><h3>Brand Partners</h3><p>Explore gaming-focused sponsorships and campaigns.</p></article>
+  </div>
+  <p style="margin-top:20px"><a class="btn primary" target="_blank" rel="noopener" href="https://www.instagram.com/offframeofficial/">Contact OFFFRAME ↗</a></p>
+</div></section>
 
-    <section class="wrap" id="products">
-      <div class="section-head"><div class="eyebrow">The future of OFFFRAME</div><h2>More Than Esports</h2><p>We are building toward OFFFRAME gaming products, accessories and a wider creator and gaming ecosystem.</p></div>
-      <div class="grid">
-        <article class="card"><div class="symbol">🖱️</div><h3>OFFFRAME Products</h3><p>Gaming gear and accessories are part of our future roadmap.</p></article>
-        <article class="card"><div class="symbol">🌐</div><h3>OFFFRAME Group</h3><p>A bigger vision built step by step, with the community at its heart.</p></article>
-      </div>
-    </section>
+<section class="content" id="products"><div class="container">
+  <div class="eyebrow">Future gear</div><h2 class="section-title">OFFFRAME Gear.</h2>
+  <p class="section-intro">Future concepts for gaming equipment and branded products. Launch details will be published when confirmed.</p>
+  <div class="grid">
+    <article class="card"><div class="icon">🎧</div><h3>Audio & Headsets</h3><p>Gaming audio and team communication concepts.</p></article>
+    <article class="card"><div class="icon">⌨️</div><h3>Keyboards & Mice</h3><p>Peripheral concepts focused on control and comfort.</p></article>
+    <article class="card"><div class="icon">🪑</div><h3>Setup Essentials</h3><p>Future gaming setup and creator accessories.</p></article>
+  </div>
+</div></section>
 
-    <section class="wrap" id="socials">
-      <div class="section-head"><div class="eyebrow">Stay connected</div><h2>Join the OFFFRAME Community</h2><p>Follow our official channels for tournament announcements and updates.</p></div>
-      <div class="socials">
-        <a href="https://www.instagram.com/offframeofficial/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram ↗</a>
-        <a href="https://www.youtube.com/@OFFFRAMEOFFICIAL-r" target="_blank" rel="noopener noreferrer" aria-label="YouTube">YouTube ↗</a>
-        <a href="https://www.facebook.com/share/18kebE6TtT/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">Facebook ↗</a>
-        <a href="https://x.com/offframe__" target="_blank" rel="noopener noreferrer" aria-label="X">X ↗</a>
-        <a href="https://whatsapp.com/channel/0029Vb8i9DC9MF8yFGJ4yU0m" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Channel">WhatsApp Channel ↗</a>
-      </div>
-    </section>
-  </main>
-  <footer><div class="wrap"><strong>OFFFRAME ESPORTS</strong> · Your Game. Your Moment.<br>© <span id="year">2026</span> OFFFRAME. All rights reserved.<p>#OFFFRAMEOFFICIAL</p></div></footer>
-  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
-</body>
-</html>
+<section class="content" id="socials"><div class="container">
+  <div class="eyebrow">Stay connected</div><h2 class="section-title">Follow OFFFRAME.</h2>
+  <div class="socials">
+    <a target="_blank" rel="noopener" href="https://www.youtube.com/@OFFFRAMEOFFICIAL-r">▶ YouTube ↗</a>
+    <a target="_blank" rel="noopener" href="https://www.instagram.com/offframeofficial/">◎ Instagram ↗</a>
+    <a target="_blank" rel="noopener" href="https://www.facebook.com/share/18kebE6TtT/">f Facebook ↗</a>
+    <a target="_blank" rel="noopener" href="https://x.com/offframe__">𝕏 X ↗</a>
+    <a target="_blank" rel="noopener" href="https://whatsapp.com/channel/0029Vb8i9DC9MF8yFGJ4yU0m">WhatsApp ↗</a>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="container footer-inner">
+  <div><b>OFFFRAME ESPORTS</b><p class="small">Play with purpose. Make your moment count.</p></div>
+  <div class="small">© <span id="year"></span> OFFFRAME Esports. All rights reserved.</div>
+</div></footer>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- Login / Sign Up modal -->
+<section class="modal" id="authModal" role="dialog" aria-modal="true">
+  <div class="modal-head"><div><div class="eyebrow">OFFFRAME Account</div><h2 id="authTitle">Welcome back</h2></div><button class="close" id="authClose" aria-label="Close">×</button></div>
+  <div class="tabs"><button class="tab active" data-mode="login">Login</button><button class="tab" data-mode="signup">Sign Up</button></div>
+  <form id="emailForm">
+    <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+    <div class="field"><label for="password">Password</label><input id="password" type="password" minlength="6" autocomplete="current-password" required placeholder="At least 6 characters"></div>
+    <div id="signupFields" class="hidden">
+      <div class="field"><label for="newUsername">Username</label><input id="newUsername" maxlength="30" placeholder="Your gamer name"></div>
+      <div class="field"><label for="newGameId">Game ID (optional)</label><input id="newGameId" maxlength="60" placeholder="Your in-game ID"></div>
+    </div>
+    <button class="btn primary full" id="emailSubmit" type="submit">Login with Email</button>
+  </form>
+  <div class="divider">OR</div>
+  <button class="btn full" id="googleLogin" type="button">🌐 Continue with Google</button>
+  <div class="divider">PHONE OTP</div>
+  <div class="field"><label for="phone">Phone number with country code</label><input id="phone" type="tel" autocomplete="tel" placeholder="+91XXXXXXXXXX"></div>
+  <div id="recaptcha-container"></div>
+  <button class="btn full" id="sendOtp" type="button">Send OTP</button>
+  <div id="otpArea" class="hidden">
+    <div class="field"><label for="otp">6-digit OTP</label><input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Enter OTP"></div>
+    <button class="btn blue full" id="verifyOtp" type="button">Verify & Login</button>
+  </div>
+  <div class="message" id="authMessage" role="status"></div>
+  <p class="small">Use the official OFFFRAME site and never share your password or OTP with anyone.</p>
+</section>
+
+<!-- Profile drawer on the same homepage -->
+<aside class="drawer" id="drawer" aria-label="Player profile" aria-hidden="true">
+  <div class="drawer-head"><div><div class="eyebrow">Player Dashboard</div><h2>Your Profile</h2></div><button class="close" id="drawerClose" aria-label="Close profile">×</button></div>
+  <div class="profile-summary">
+    <div class="avatar" id="largeAvatar">P</div>
+    <div><h3 id="summaryName">Player</h3><p id="summaryEmail">Not signed in</p></div>
+  </div>
+  <div class="drawer-section">
+    <h3>Edit Profile</h3>
+    <form id="profileForm">
+      <div class="field"><label for="username">Username</label><input id="username" maxlength="30" required></div>
+      <div class="field"><label for="gameId">Game ID</label><input id="gameId" maxlength="60" placeholder="Your game ID"></div>
+      <div class="field"><label for="bio">Bio</label><textarea id="bio" maxlength="240" placeholder="Tell the community about yourself"></textarea></div>
+      <div class="field"><label>Profile Photo</label><label class="upload-label">＋ Choose image<input id="photo" type="file" accept="image/png,image/jpeg,image/webp"></label><div class="small">JPG, PNG or WebP. Photo is resized before saving.</div></div>
+      <div class="field"><label for="instagram">Instagram URL</label><input id="instagram" type="url" placeholder="https://instagram.com/username"></div>
+      <div class="field"><label for="youtube">YouTube URL</label><input id="youtube" type="url" placeholder="https://youtube.com/@channel"></div>
+      <div class="field"><label for="facebook">Facebook URL</label><input id="facebook" type="url" placeholder="https://facebook.com/username"></div>
+      <div class="field"><label for="xlink">X URL</label><input id="xlink" type="url" placeholder="https://x.com/username"></div>
+      <button class="btn primary full" id="saveProfile" type="submit">Save Profile</button>
+      <div class="message" id="profileMessage" role="status"></div>
+    </form>
+  </div>
+  <div class="drawer-section"><h3>Social Profiles</h3><div class="profile-socials" id="profileSocials"><span class="small">Add your links above.</span></div></div>
+  <div class="drawer-section">
+    <h3>Account Help & Support</h3>
+    <div class="placeholder">Support centre — coming soon</div>
+    <div class="placeholder">Account help — coming soon</div>
+  </div>
+  <div class="drawer-section">
+    <button class="more-toggle" id="moreToggle" aria-expanded="false"><span>More Details</span><span id="moreIcon">＋</span></button>
+    <div class="more-content hidden" id="moreContent">
+      <div class="placeholder">Account preferences — coming soon</div>
+      <div class="placeholder">Privacy options — coming soon</div>
+      <button class="btn full" id="logout" type="button">Log Out</button>
+    </div>
+  </div>
+</aside>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<script>
+/* Firebase project configuration */
+const firebaseConfig = {
+  apiKey: "AIzaSyDBE9_mJ9p6yOfUTX_MgbpHH_yUDlYxhU",
+  authDomain: "offframe-esports.firebaseapp.com",
+  projectId: "offframe-esports",
+  storageBucket: "offframe-esports.firebasesto
