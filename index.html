@@ -361,14 +361,28 @@ footer{border-top:1px solid var(--border);padding:28px 0;color:var(--muted)}
 
 <script>
 /* OFFFRAME ESPORTS — Firebase Authentication & Profile */
+  
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDBE9_mJ9p6yOfUTX_MgbpHH_yUDlYxhU",
+  apiKey: "AIzaSyDBfE9_mJ9p6yOfUTX_MgbpHH_yUDlYxhU",
   authDomain: "offframe-esports.firebaseapp.com",
   projectId: "offframe-esports",
+  storageBucket: "offframe-esports.firebasestorage.app",
+  messagingSenderId: "754745700489",
   appId: "1:754745700489:web:02a51f583d0dc043b79658",
-  messagingSenderId: "754745700489"
+  measurementId: "G-KJDPZDK7TN"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app)
 
 firebase.initializeApp(firebaseConfig);
 
